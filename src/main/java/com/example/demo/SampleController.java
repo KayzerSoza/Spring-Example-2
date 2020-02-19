@@ -1,21 +1,18 @@
 package com.example.demo;
 
 
-import org.apache.logging.log4j.message.Message;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-//1. method
-@RestController
 
-        //can be declared public also
+@RestController
 class SampleController {
-  @GetMapping("/hello")
+
+  @RequestMapping("/hello")
+
   public Greeting sayHello() {
-    return new Greeting();
+
+    return new Greeting(3,"Greeting method says Hello!");
 
   }
 }

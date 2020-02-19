@@ -1,11 +1,12 @@
 package com.example.demo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Greeting {
-
-  private int id;
-  private String name;
+  private Integer id;
+  private String content;
 }
 
