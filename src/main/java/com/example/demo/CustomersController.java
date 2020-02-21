@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -18,7 +19,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping("/api/")
 public class CustomersController {
 
-  private List<Customer> customersList = new ArrayList<>(); //customersList will function as our database
+                                         // Collections.synchronizedList provides thread security
+  private List<Customer> customersList = Collections.synchronizedList(new ArrayList<>());
   AtomicLong counter =new AtomicLong(); // will increment customerId in a thread secure way
 
   @RequestMapping(value = "/customers", method = GET)
@@ -35,7 +37,7 @@ public class CustomersController {
     customersList.add(customer);
     HttpHeaders headers=new HttpHeaders();
     headers.add("Location", "/api/customers/"+customer.getId());
-    return new ResponseEntity(customer, headers, HttpStatus.CREATED );
+    return new ResponseEntity<>(customer, headers, HttpStatus.CREATED );
 
   }
 
