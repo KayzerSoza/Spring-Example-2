@@ -1,5 +1,8 @@
 package com.example.demo;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +25,31 @@ public class CustomersController {
 
   }
 
+/*
+// void method adds customer to the list. In this case Get Method returns empty list
   @RequestMapping(value = "/customers", method = POST)
   public void createCustomer(@RequestBody Customer customer) {
     // Without @RequestBody GET method returns null values
     customersList.add(customer);
+  }
+*/
+
+/*  //This method would return only Customer objects.
+   //We want return HTTP messages as well.Better to use ResponseEntity
+  @RequestMapping(value = "/customers", method = POST)
+  public Customer createCustomer(@RequestBody Customer customer) {
+    customersList.add(customer);
+    return customer;
+  }*/
+
+  @RequestMapping(value = "/customers", method = POST)
+  public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
+
+    customersList.add(customer);
+    HttpHeaders headers=new HttpHeaders();
+    headers.add("Location", "/api/customers/"+customer.getId());
+    return new ResponseEntity(customer, headers, HttpStatus.CREATED );
+
   }
 
 }
