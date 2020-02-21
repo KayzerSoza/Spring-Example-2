@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -18,8 +19,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RestController
 @RequestMapping("/api/customers") // we can add /customers path here to write less code
 public class CustomersController {
-  // Collections.synchronizedList provides thread security
-  private List<Customer> customersList = Collections.synchronizedList(new ArrayList<>());
+  //Collections.synchronizedList() causes syc for reading as well which is not efficient.
+  // therefore it is better to use  CopyOnWriteArrayList<>()
+  private List<Customer> customersList = new CopyOnWriteArrayList<>();
+
   AtomicLong counter = new AtomicLong(); // will increment customerId in a thread secure way
 
   @GetMapping       // replaced @RequestMapping(value = "/customers", method = GET)
