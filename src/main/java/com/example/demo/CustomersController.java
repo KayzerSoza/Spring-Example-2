@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 // we want api/customers url.
@@ -15,13 +17,25 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RestController
 @RequestMapping("/api/")
 public class CustomersController {
-  //customersList will function as our database as  long as Controller runs
-  private List<Customer> customersList = new ArrayList<>();
 
+  private List<Customer> customersList = new ArrayList<>(); //customersList will function as our database
+  AtomicLong counter =new AtomicLong(); // will increment customerId in a thread secure way
 
   @RequestMapping(value = "/customers", method = GET)
   public List<Customer> allCustomers() {
     return customersList;
+
+  }
+
+  @RequestMapping(value = "/customers", method = POST)
+  public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
+
+    customer.setId(counter.addAndGet(1)); // increments counter by delta and gets the value to setId
+
+    customersList.add(customer);
+    HttpHeaders headers=new HttpHeaders();
+    headers.add("Location", "/api/customers/"+customer.getId());
+    return new ResponseEntity(customer, headers, HttpStatus.CREATED );
 
   }
 
@@ -42,14 +56,5 @@ public class CustomersController {
     return customer;
   }*/
 
-  @RequestMapping(value = "/customers", method = POST)
-  public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
-
-    customersList.add(customer);
-    HttpHeaders headers=new HttpHeaders();
-    headers.add("Location", "/api/customers/"+customer.getId());
-    return new ResponseEntity(customer, headers, HttpStatus.CREATED );
-
-  }
 
 }
