@@ -5,49 +5,47 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 // we want api/customers url.
 // So we need to add a default mapping that will affect all methods below
 @RestController
-@RequestMapping("/api/customers") // we can add /customers path here to write less code
+@RequestMapping("/api/customers") // we can add /customers path here to write less code. therefore it is better to use  CopyOnWriteArrayList<>()
 public class CustomersController {
   //Collections.synchronizedList() causes syc for reading as well which is not efficient.
-  // therefore it is better to use  CopyOnWriteArrayList<>()
-  private List<Customer> customersList = new CopyOnWriteArrayList<>();
+  // private List<Customer> customersList = new CopyOnWriteArrayList<>();
+ //  AtomicLong counter = new AtomicLong(); // not needed after db integration
 
-  AtomicLong counter = new AtomicLong(); // will increment customerId in a thread secure way
+  final CustomersRepository repository;
+
+  public CustomersController(CustomersRepository storage) {
+    this.repository = storage;
+  }
 
   @GetMapping       // replaced @RequestMapping(value = "/customers", method = GET)
   public List<Customer> allCustomers() {
-    return customersList;
+    return repository.findAll();
   }
 
   @GetMapping(value = "/{id}")  // replaced  @RequestMapping(value = "/customers/{id}")
   public ResponseEntity<Customer> getOneCustomerById(@PathVariable long id) {
-    var customerOptional = customersList.stream()
-            .filter(customer -> customer.getId() == id)
-            .findFirst();
+    var customerOptional = repository.findById(id);
+
     return customerOptional
             .map(customer -> new ResponseEntity<>(customer, HttpStatus.OK))
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     //     .orElse(()-> new CustomErrorType("User with id "+ id+ " not found", HttpStatus.NOT_FOUND));
   }
+
   @PostMapping     //replaced   @RequestMapping(value = "/customers", method = POST)
   public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
 
-    customer.setId(counter.addAndGet(1)); // increments counter by delta and gets the value to setId
-    customersList.add(customer);
+    //customer.setId(counter.addAndGet(1)); //  NO LONGER NEEDED BECAUSE DB GIVES ID AUTOMATICALLY
+    var c= repository.save(customer);
     HttpHeaders headers = new HttpHeaders();
-    headers.add("Location", "/api/customers/" + customer.getId());
-    return new ResponseEntity<>(customer, headers, HttpStatus.CREATED);
+    headers.add("Location", "/api/customers/" + c.getId());
+    return new ResponseEntity<>(c, headers, HttpStatus.CREATED);
   }
 
 
