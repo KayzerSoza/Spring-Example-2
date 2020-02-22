@@ -29,9 +29,9 @@ public class CustomersController {
     //return repository.findAll();
     //return repository.findByName("Tim");
     //return repository.findByNameCustom("Tim");
-    //return repository.findByNameContains("i".toLowerCase());
+    return repository.findByNameContainsOrNameContains("e", "E");
     //return repository.findByIdGreaterThan(3L);
-    return repository.findByIdBetween(3L, 6L);
+//    return repository.findByIdBetween(3L, 6L);
 
   }
 

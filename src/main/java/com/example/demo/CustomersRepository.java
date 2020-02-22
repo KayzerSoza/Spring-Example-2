@@ -14,7 +14,7 @@ public interface CustomersRepository extends JpaRepository<Customer, Long> {
   @Query("Select c from Customer c where lower(c.name)  like lower(?1)")
   List<Customer> findByNameCustom(String name);
 
-  List<Customer> findByNameContains(String letter);
+  List<Customer> findByNameContainsOrNameContains(String char1, String char2);
 
   List<Customer> findByIdBetween(Long id1, Long id2);
 
