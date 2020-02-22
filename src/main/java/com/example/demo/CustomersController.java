@@ -26,12 +26,12 @@ public class CustomersController {
 
   @GetMapping       // replaced @RequestMapping(value = "/customers", method = GET)
   public List<Customer> allCustomers() {
-    //return repository.findAll();
+    return repository.findAll();
     //return repository.findByName("Tim");
     //return repository.findByNameCustom("Tim");
-    return repository.findByNameContainsOrNameContains("e", "E");
+    //return repository.findByNameContainsOrNameContains("e", "E");
     //return repository.findByIdGreaterThan(3L);
-//    return repository.findByIdBetween(3L, 6L);
+    //return repository.findByIdBetween(3L, 6L);
 
   }
 
@@ -55,6 +55,29 @@ public class CustomersController {
     headers.add("Location", "/api/customers/" + c.getId());
     return new ResponseEntity<>(c, headers, HttpStatus.CREATED);
   }
+
+  @DeleteMapping("/{id}")
+  void deleteCustomer(@PathVariable Long id){
+    repository.deleteById(id);
+  }
+
+  @PutMapping("/{id}")
+
+  Customer replacePerson(@RequestBody Customer newCustomer, @ PathVariable Long id){
+    return repository.findById(id)
+            .map(customer-> {
+              customer.setName(newCustomer.getName());
+               return repository.save(customer);
+            }).orElseGet(()-> {
+              newCustomer.setId(id);  //not allowed within Database
+              return repository.save(newCustomer);
+            } );
+
+  }
+
+
+
+
 
 /*
 // void method adds customer to the list. In this case Get Method returns empty list
