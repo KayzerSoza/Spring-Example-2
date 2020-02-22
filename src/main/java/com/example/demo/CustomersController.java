@@ -11,11 +11,12 @@ import java.util.concurrent.atomic.AtomicLong;
 // we want api/customers url.
 // So we need to add a default mapping that will affect all methods below
 @RestController
-@RequestMapping("/api/customers") // we can add /customers path here to write less code. therefore it is better to use  CopyOnWriteArrayList<>()
+@RequestMapping("/api/customers")
+// we can add /customers path here to write less code. therefore it is better to use  CopyOnWriteArrayList<>()
 public class CustomersController {
   //Collections.synchronizedList() causes syc for reading as well which is not efficient.
   // private List<Customer> customersList = new CopyOnWriteArrayList<>();
- //  AtomicLong counter = new AtomicLong(); // not needed after db integration
+  //  AtomicLong counter = new AtomicLong(); // not needed after db integration
 
   final CustomersRepository repository;
 
@@ -25,8 +26,15 @@ public class CustomersController {
 
   @GetMapping       // replaced @RequestMapping(value = "/customers", method = GET)
   public List<Customer> allCustomers() {
-    return repository.findAll();
+    //return repository.findAll();
+    //return repository.findByName("Tim");
+    //return repository.findByNameCustom("Tim");
+    //return repository.findByNameContains("i".toLowerCase());
+    //return repository.findByIdGreaterThan(3L);
+    return repository.findByIdBetween(3L, 6L);
+
   }
+
 
   @GetMapping(value = "/{id}")  // replaced  @RequestMapping(value = "/customers/{id}")
   public ResponseEntity<Customer> getOneCustomerById(@PathVariable long id) {
@@ -42,14 +50,11 @@ public class CustomersController {
   public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
 
     //customer.setId(counter.addAndGet(1)); //  NO LONGER NEEDED BECAUSE DB GIVES ID AUTOMATICALLY
-    var c= repository.save(customer);
+    var c = repository.save(customer);
     HttpHeaders headers = new HttpHeaders();
     headers.add("Location", "/api/customers/" + c.getId());
     return new ResponseEntity<>(c, headers, HttpStatus.CREATED);
   }
-
-
-
 
 /*
 // void method adds customer to the list. In this case Get Method returns empty list
@@ -67,6 +72,4 @@ public class CustomersController {
     customersList.add(customer);
     return customer;
   }*/
-
-
 }
