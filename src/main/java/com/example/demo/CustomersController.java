@@ -57,13 +57,36 @@ public class CustomersController {
   }
 
   @DeleteMapping("/{id}")
+  ResponseEntity<?> deleteCustomer(@PathVariable Long id){
+    if (repository.existsById(id)){
+      repository.deleteById(id);
+      return new ResponseEntity<>(HttpStatus.OK);
+    } else
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  }
+
+/*
+  @DeleteMapping("/{id}") // We  developed this method  with ResponseEntity
   void deleteCustomer(@PathVariable Long id){
     repository.deleteById(id);
   }
+*/
 
   @PutMapping("/{id}")
+  ResponseEntity<Customer> replaceCustomer(@RequestBody Customer newCustomer, @PathVariable Long id) {
+    return repository.findById(id)
+            .map(customer -> {
+              customer.setName(newCustomer.getName());
+              repository.save(customer);
+              HttpHeaders headers = new HttpHeaders();
+              headers.add("Location", "/api/customers/" + customer.getId());
+              return new ResponseEntity<>(customer, headers, HttpStatus.OK);
+            }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+  }
 
-  Customer replacePerson(@RequestBody Customer newCustomer, @ PathVariable Long id){
+
+/*  @PutMapping("/{id}") // We  developed this method  with ResponseEntity
+  Customer replaceCustomer(@RequestBody Customer newCustomer, @ PathVariable Long id){
     return repository.findById(id)
             .map(customer-> {
               customer.setName(newCustomer.getName());
@@ -72,14 +95,9 @@ public class CustomersController {
               newCustomer.setId(id);  //not allowed within Database
               return repository.save(newCustomer);
             } );
+  }*/
 
-  }
-
-
-
-
-
-/*
+  /*
 // void method adds customer to the list. In this case Get Method returns empty list
   @RequestMapping(value = "/customers", method = POST)
   public void createCustomer(@RequestBody Customer customer) {
