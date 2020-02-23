@@ -57,20 +57,13 @@ public class CustomersController {
   }
 
   @DeleteMapping("/{id}")
-  ResponseEntity<?> deleteCustomer(@PathVariable Long id){
-    if (repository.existsById(id)){
+  ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
+    if (repository.existsById(id)) {
       repository.deleteById(id);
       return new ResponseEntity<>(HttpStatus.OK);
     } else
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
-
-/*
-  @DeleteMapping("/{id}") // We  developed this method  with ResponseEntity
-  void deleteCustomer(@PathVariable Long id){
-    repository.deleteById(id);
-  }
-*/
 
   @PutMapping("/{id}")
   ResponseEntity<Customer> replaceCustomer(@RequestBody Customer newCustomer, @PathVariable Long id) {
@@ -85,6 +78,32 @@ public class CustomersController {
   }
 
 
+  @PatchMapping("/{id}")
+  ResponseEntity<?> modifyCustomer(@RequestBody Customer newCustomer, @PathVariable Long id) {
+    return repository.findById(id)
+            .map(customer -> {
+              if (newCustomer.getName() != null) {
+                customer.setName(newCustomer.getName());
+              }
+              repository.save(customer);
+              HttpHeaders headers = new HttpHeaders();
+              headers.add("Location", "/api/customers/" + customer.getId());
+              return new ResponseEntity<>(customer, headers, HttpStatus.OK);
+            }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+  }
+
+
+
+
+
+
+
+/*
+  @DeleteMapping("/{id}") // We  developed this method  with ResponseEntity
+  void deleteCustomer(@PathVariable Long id){
+    repository.deleteById(id);
+  }
+*/
 /*  @PutMapping("/{id}") // We  developed this method  with ResponseEntity
   Customer replaceCustomer(@RequestBody Customer newCustomer, @ PathVariable Long id){
     return repository.findById(id)
@@ -96,8 +115,7 @@ public class CustomersController {
               return repository.save(newCustomer);
             } );
   }*/
-
-  /*
+/*
 // void method adds customer to the list. In this case Get Method returns empty list
   @RequestMapping(value = "/customers", method = POST)
   public void createCustomer(@RequestBody Customer customer) {
@@ -105,7 +123,6 @@ public class CustomersController {
     customersList.add(customer);
   }
 */
-
 /*  //This method would return only Customer objects.
    //We want return HTTP messages as well.Better to use ResponseEntity
   @RequestMapping(value = "/customers", method = POST)
